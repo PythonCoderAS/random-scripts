@@ -1,0 +1,14 @@
+[project]
+name = "random-scripts"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "typer>=0.17.4",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.12",
+]
