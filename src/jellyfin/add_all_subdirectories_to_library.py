@@ -59,7 +59,7 @@ async def add_all_subdirectories_to_library_inner(
             await session.add_path_to_library(
                 library.Name, last_path, refresh_library=True
             )
-            print(f"Added {len(paths)} new paths to library '{library.Name}'.")
+            print(f"Added {len(new_paths)} new paths to library '{library.Name}'.")
 
 
 @app.command()
