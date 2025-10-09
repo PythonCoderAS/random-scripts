@@ -21,7 +21,7 @@ class JellyfinAPIClient(ClientSession):
         super().__init__(base_url)
         self.headers.update(
             {
-                "Authentication": f'MediaBrowser Token="{quote(api_key)}" Client="RandomScripts" Version="1.0" Device="PythonClient" DeviceId="PythonClient"'
+                "Authentication": f'MediaBrowser Token="{quote(api_key)}", Client="RandomScripts", Version="1.0", Device="PythonClient", DeviceId="PythonClient"'
             }
         )
 
