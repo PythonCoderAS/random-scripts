@@ -1,4 +1,4 @@
-from asyncio import gather
+from asyncio import gather, run
 from pathlib import Path
 from typing import Annotated
 
@@ -8,41 +8,15 @@ from os import getenv, scandir
 from .utils import JellyfinAPIClient
 
 
-@app.command()
-async def add_all_subdirectories_to_library(
+async def add_all_subdirectories_to_library_inner(
+    *,
     library_name: str,
-    parent_folder_path: Annotated[
-        Path,
-        Argument(
-            exists=True,
-            file_okay=False,
-            dir_okay=True,
-            readable=True,
-            resolve_path=True,
-            help="The parent folder containing subdirectories to add to the Jellyfin library.",
-        ),
-    ],
-    jellyfin_server_url: str = getenv("JELLYFIN_SERVER_URL", "http://localhost:8096"),
-    api_key: str | None = getenv("JELLYFIN_API_KEY"),
-    path_replace_from: str | None = Option(
-        default=None,
-        help="A substring in the folder paths to replace. Useful for adjusting paths when the server sees them differently.",
-    ),
-    path_replace_to: str | None = Option(
-        default=None,
-        help="The substring to replace with in the folder paths.",
-    ),
+    parent_folder_path: Path,
+    jellyfin_server_url: str,
+    api_key: str | None,
+    path_replace_from: str | None,
+    path_replace_to: str | None,
 ):
-    """Add all subdirectories of a given parent folder to a specified Jellyfin library.
-
-    :param library_name: The name of the Jellyfin library to which subdirectories will be added. Must exist and match casing.
-    :param parent_folder_path: The parent folder containing subdirectories to add to the Jellyfin library.
-    :param jellyfin_server_url: The base URL of the Jellyfin server, defaults to the JELLYFIN_SERVER_URL environment variable or "http://localhost:8096"
-    :param api_key: The API key for authenticating with the Jellyfin server, defaults to the JELLYFIN_API_KEY environment variable
-    :param path_replace_from: A substring in the folder paths to replace. Useful for adjusting paths when the server sees them differently.
-    :param path_replace_to: The substring to replace with in the folder paths.
-    :raises ValueError: If the API key is not provided or if only one of the path replacement parameters is provided.
-    """
     if not api_key:
         raise ValueError(
             "JELLYFIN_API_KEY environment variable must be set or the --api-key option must be provided."
@@ -86,3 +60,50 @@ async def add_all_subdirectories_to_library(
                 library.Name, last_path, refresh_library=True
             )
             print(f"Added {len(paths)} new paths to library '{library.Name}'.")
+
+
+@app.command()
+async def add_all_subdirectories_to_library(
+    library_name: str,
+    parent_folder_path: Annotated[
+        Path,
+        Argument(
+            exists=True,
+            file_okay=False,
+            dir_okay=True,
+            readable=True,
+            resolve_path=True,
+            help="The parent folder containing subdirectories to add to the Jellyfin library.",
+        ),
+    ],
+    jellyfin_server_url: str = getenv("JELLYFIN_SERVER_URL", "http://localhost:8096"),
+    api_key: str | None = getenv("JELLYFIN_API_KEY"),
+    path_replace_from: str | None = Option(
+        default=None,
+        help="A substring in the folder paths to replace. Useful for adjusting paths when the server sees them differently.",
+    ),
+    path_replace_to: str | None = Option(
+        default=None,
+        help="The substring to replace with in the folder paths.",
+    ),
+):
+    """Add all subdirectories of a given parent folder to a specified Jellyfin library.
+
+    :param library_name: The name of the Jellyfin library to which subdirectories will be added. Must exist and match casing.
+    :param parent_folder_path: The parent folder containing subdirectories to add to the Jellyfin library.
+    :param jellyfin_server_url: The base URL of the Jellyfin server, defaults to the JELLYFIN_SERVER_URL environment variable or "http://localhost:8096"
+    :param api_key: The API key for authenticating with the Jellyfin server, defaults to the JELLYFIN_API_KEY environment variable
+    :param path_replace_from: A substring in the folder paths to replace. Useful for adjusting paths when the server sees them differently.
+    :param path_replace_to: The substring to replace with in the folder paths.
+    :raises ValueError: If the API key is not provided or if only one of the path replacement parameters is provided.
+    """
+    run(
+        add_all_subdirectories_to_library_inner(
+            library_name=library_name,
+            parent_folder_path=parent_folder_path,
+            jellyfin_server_url=jellyfin_server_url,
+            api_key=api_key,
+            path_replace_from=path_replace_from,
+            path_replace_to=path_replace_to,
+        )
+    )
