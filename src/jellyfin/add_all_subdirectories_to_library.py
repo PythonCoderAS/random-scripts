@@ -63,7 +63,7 @@ async def add_all_subdirectories_to_library_inner(
 
 
 @app.command()
-async def add_all_subdirectories_to_library(
+def add_all_subdirectories_to_library(
     library_name: str,
     parent_folder_path: Annotated[
         Path,
